@@ -35,8 +35,8 @@ AIエージェント（Claude Code）に開発作業を委任するための、�
 
 ## ブログ
 
-- [① AI開発、思ったほど楽じゃなかった話](https://note.com/brave_clover1859/n/na8fbe4649f0e)
-- [② スペック駆動開発（SDD）にたどり着くまで](https://note.com/brave_clover1859/n/n9895c4570053)
+- [① AI開発、思ったほど楽じゃなかった話](https://note.com/halfeng202602/n/na8fbe4649f0e)
+- [② スペック駆動開発（SDD）にたどり着くまで](https://note.com/halfeng202602/n/n9895c4570053)
 - [③ SDDテンプレートv3 検証＋公開](https://note.com/halfeng202602/n/na931d69cb82e)
 
 ## 注意
