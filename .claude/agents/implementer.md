@@ -17,6 +17,8 @@ model: sonnet
 - 判断に迷ったらオーケストレーターに報告して止まる
 - テストを先に書く（TDD）
 - 1タスク = 1コミット
+- **実装中にエラーが発生した場合、修正前に bugs/{task-id}-{連番}.md を作成すること。記録なしでタスクをDONEにしてはならない**
+- **バグがゼロの場合は bugs/{task-id}-no-bugs.md に「バグなし」と明示記録する（記録行為自体が必須）**
 
 ## 実装フロー
 
@@ -73,13 +75,25 @@ Refs: specs/{feature}/tasks.md
 - specs/{feature}/tasks.md（タスク定義と受入基準）
 - specs/{feature}/requirements.md（受入基準の詳細）
 
-## バグ記録
+## バグ記録（必須）
 
 実装中にバグが発生した場合（テスト失敗の修正、予期しないエラー等）、以下を記録する：
 
-ファイル: `bugs/{bug-name}/report.md`
-
+ファイル: `bugs/{task-id}-{連番}.md`
 テンプレート: `bugs/_templates/bug-report-template.md` を使用する。
+
+**バグが一切発生しなかった場合も** `bugs/{task-id}-no-bugs.md` を作成し、以下を記録する：
+```markdown
+# Bug Report: {task-id}-no-bugs
+
+## 発生タスク
+{Task-N}
+
+## 記録
+実装中にバグは発生しなかった。
+```
+
+**bugs/ に該当タスクの記録ファイルが1つも存在しない状態でタスクをDONEにすることは禁止。**
 
 ## 完了報告
 

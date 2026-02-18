@@ -63,8 +63,18 @@ POの指示を分析して以下を特定する：
 **Phase 1'（技術調査）**: 必要と判断した場合、researcher に並列で委任。
 **Phase 2（設計＋タスク分解）**: architect に委任。design.md と tasks.md を同時に作成。完了後、サイズがLarge/MediumならPO承認を待つ。
 **Phase 3（実装＋テスト）**: implementer にタスク単位で委任。テストも実装者が書く。
+  - **完了条件: テストがパスしていること + bugs/{task-id}-*.md が1つ以上存在すること**
   - **全タスクが DONE になったら自動的に Phase 4（レビュー）に遷移する。POの承認を待たずにレビューを開始してよい。**
   - `/resume` でセッション復帰した場合も、全タスク DONE かつ review.md 未作成なら Phase 4 に遷移する。
+
+  **Agent Teams 並列実行（v4）:**
+  tasks.md に独立したタスク（同一ファイルを編集しないタスク）が複数ある場合：
+  - Agent Teams を使って並列実行する
+  - Lead Agent が tasks.md を管理し、各 Teammate にタスクを割り当てる
+  - Teammate は割り当てられたタスクのみ実装する（他のタスクのファイルに触れない）
+  - 各 Teammate は実装完了後にテストを通す
+  - 全 Teammate 完了後、Lead Agent が tasks.md を更新して Phase 4 に進む
+  - 依存関係があるタスクや同一ファイルを編集するタスクは逐次実行のまま
 **Phase 4（レビュー）**: reviewer に委任。完了後、サイズがTrivial以外ならPO承認を待つ。
 **Phase 5（ドキュメント）**: documenter に委任。PO承認不要。
 **Phase 6（コミット）**: 最終コミットの整理。PO承認不要。
