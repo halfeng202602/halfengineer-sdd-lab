@@ -44,7 +44,7 @@
 - [① AI開発、思ったほど楽じゃなかった話](https://note.com/halfeng202602/n/na8fbe4649f0e)
 - [② スペック駆動開発にたどり着くまで](https://note.com/halfeng202602/n/n9895c4570053)
 - [③ テンプレートv3、検証してみた](https://note.com/halfeng202602/n/na931d69cb82e)
-- ④ テンプレv4、シェフが同時に動き出した（近日公開）
+- [④ テンプレv4、シェフが同時に動き出した](https://note.com/halfeng202602/n/nc35e1335e4cd)
 
 ## 注意
 
