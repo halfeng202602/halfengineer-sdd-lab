@@ -67,6 +67,21 @@ requirements.md を作成する前に、以下のカテゴリについてPOに�
 - docs/steering/product.md（プロダクトビジョン）
 - docs/steering/tech.md（技術制約）
 
+### Steering Docs 書き戻し
+
+requirements.md 作成時にPOから得た情報のうち、以下に該当するものは steering docs にも書き戻す：
+
+| 得た情報 | 書き戻し先 |
+|---|---|
+| プロダクトの目的・対象ユーザー・ゴール | `docs/steering/product.md` |
+| 技術スタック・使用ライブラリ・テスト方針 | `docs/steering/tech.md` |
+| ディレクトリ構成・命名規則 | `docs/steering/structure.md` |
+| 主要機能・ユースケース | `SPEC.md` |
+
+- プレースホルダ（`{例: ...}` 等）が残っている箇所は、判明した事実で上書きする
+- すでに記入済みの箇所は、矛盾がない限り触らない
+- 書き戻したファイルは完了報告で明記する
+
 ## 完了条件
 - 上記構成がすべて埋まっている
 - 受入基準がすべてテスト可能な形式になっている
