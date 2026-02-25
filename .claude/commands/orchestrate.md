@@ -81,9 +81,21 @@ POの指示を分析して以下を特定する：
 
 各サブエージェントの完了後：
 1. 成果物の品質を確認する
-2. documenter に成果物を渡してドキュメント更新を委任する
-3. 承認ポイントならPOに報告して承認を待つ
-4. 承認ポイントでなければ次のフェーズに進む
+2. **implementer の仕様フィードバック（SPEC_GAP / SPEC_WRONG / SPEC_AMBIGUOUS）を確認する**
+3. **フィードバックがある場合、以下の判定を行う：**
+   - **軽微**（実装の補足説明レベル）→ requirements.md または design.md の「実装時補記」セクションに直接追記する
+   - **中程度**（仕様の修正が必要）→ POに報告し、requirements.md / design.md を更新してから次フェーズに進む
+   - **重大**（アーキテクチャに影響）→ /change-request フローに回す
+
+> 設計根拠:
+> - 「Spec drift と hallucination は本質的に回避困難。高度に決定論的なCI/CDプラクティスが
+>   依然として必要」（Thoughtworks Liu Shangqi, 2025）
+> - 「Bidirectional Feedback: 本番の現実が仕様の進化に情報を与える」（GitHub Spec Kit）
+> - 書き戻しがないと仕様は「歴史的フィクション」になる（arXiv解説記事, 2026）
+
+4. documenter に成果物を渡してドキュメント更新を委任する
+5. 承認ポイントならPOに報告して承認を待つ
+6. 承認ポイントでなければ次のフェーズに進む
 
 ## Step 5: 完了報告
 
