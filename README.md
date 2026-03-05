@@ -2,10 +2,9 @@
 
 非エンジニアがAIに開発を丸投げするための実験テンプレート。
 
-「仕様書を書いたらAIが作ってくれる」を本気で試してみた記録です。
+「仕様書を書いたらAIが作ってくれる」を試してみた記録です。
 筆者が勝手にスペック駆動開発（SDD）と呼んでいます。
 
-実績：このテンプレートで米国株損益管理ツールとTODOアプリを開発。コードは1行も書いてない。
 
 ### 従来のAI開発との違い
 
@@ -25,11 +24,13 @@
 5. ドキュメント（Documenterエージェント）
 6. コミット整理
 
-## v4の主な変更点
+## v5の主な変更点
 
-- **CLAUDE.md**: プロジェクトメモリとして再設計（Claude Codeが毎回自動読み込み）
-- **Hooks**: コード完成後のテスト自動実行、コミット前のバグ記録チェック、フェーズ完了時の記録
-- **Custom Slash Commands**: /phase-review、/phase-test、/status を追加
+- **Living Spec（spec-anchored）**: 実装で判明した事実を仕様に書き戻す双方向フィードバック
+- **Steering Docs 書き戻し**: PMがPOから得た情報を product.md / tech.md / structure.md に自動反映。プレースホルダが埋まらない問題を解消
+- **ユースケース単位イテレーション**: SPEC.md のユースケースを1つずつ /orchestrate で回す。複数同時進行しない
+- **PMの必須確認チェックリスト**: ユーザー視点・ビジネス視点・データ制約・エッジケースの4カテゴリで質問を強制
+- **Custom Slash Commands**: /phase-review、/phase-test、/status、/change-request を追加
 - **Agent Teams**: 独立タスクの並列実行に対応
 - **バグ記録の強制化**: 行動原則 + レビュー + Hooks の三重チェック
 
@@ -43,9 +44,9 @@
 
 - [① AI開発、思ったほど楽じゃなかった話](https://note.com/halfeng202602/n/na8fbe4649f0e)
 - [② スペック駆動開発にたどり着くまで](https://note.com/halfeng202602/n/n9895c4570053)
-- [③ テンプレートv3、検証してみた](https://note.com/halfeng202602/n/na931d69cb82e)
+- [③ テンプレv3、検証してみた](https://note.com/halfeng202602/n/na931d69cb82e)
 - [④ テンプレv4、シェフが同時に動き出した](https://note.com/halfeng202602/n/nc35e1335e4cd)
-
+- [⑤ 自作AI開発テンプレv5、地味だけど大事なアップデート](https://note.com/halfeng202602/n/ndee99bde4abb)
 ## 注意
 
 これは個人の実験プロジェクトです。AIが生成したコードの品質は人間が確認してください。
