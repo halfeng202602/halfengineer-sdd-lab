@@ -1,44 +1,55 @@
-# halfengineer-sdd-lab
+# halfengineer-sdd-lab v7
 
 非エンジニアがAIに開発を丸投げするための実験テンプレート。
-
 「仕様書を書いたらAIが作ってくれる」を試してみた記録です。
-筆者が勝手にスペック駆動開発（SDD）と呼んでいます。
 
+## v7の特徴
 
-### 従来のAI開発との違い
-
-| | チャットベース | SDD |
-|---|---|---|
-| 指示の出し方 | その場でプロンプトを書く | 事前に仕様書を用意する |
-| 品質の再現性 | 人とプロンプト次第 | テンプレートで標準化 |
-| 承認フロー | なし（AIが自走） | planning → approval → execution |
-| 対象ユーザー | エンジニア | PO/PM（非エンジニア含む） |
-
-### ワークフロー（6フェーズ）
-
-1. 要件定義（PMエージェント）
-2. 設計＋タスク分解（Architectエージェント）
-3. 実装＋テスト（Implementerエージェント）— Agent Teamsで並列実行可能
-4. レビュー（Reviewerエージェント）
-5. ドキュメント（Documenterエージェント）
-6. コミット整理
-
-## v5の主な変更点
-
-- **Living Spec（spec-anchored）**: 実装で判明した事実を仕様に書き戻す双方向フィードバック
-- **Steering Docs 書き戻し**: PMがPOから得た情報を product.md / tech.md / structure.md に自動反映。プレースホルダが埋まらない問題を解消
-- **ユースケース単位イテレーション**: SPEC.md のユースケースを1つずつ /orchestrate で回す。複数同時進行しない
-- **PMの必須確認チェックリスト**: ユーザー視点・ビジネス視点・データ制約・エッジケースの4カテゴリで質問を強制
-- **Custom Slash Commands**: /phase-review、/phase-test、/status、/change-request を追加
-- **Agent Teams**: 独立タスクの並列実行に対応
-- **バグ記録の強制化**: 行動原則 + レビュー + Hooks の三重チェック
+- **最小限のファイルを育てる**: specs/ は3ファイルだけ。セクション追記で育てる
+- **機能単位**: ユースケースではなく機能単位で分割
+- **TDD + 受入基準**: テストは受入基準カバーのみ必須
+- **仕様は生きている**: 実装で判明した事実はP4で仕様に書き戻す
+- **5フェーズ**: 要件定義→設計→実装→レビュー→ドキュメント
+- **4エージェント + orchestrator**: pm, architect, implementer, reviewer, researcher
 
 ## 使い方
 
 1. テンプレートをプロジェクトにコピー
-2. `CLAUDE.md` を自分のプロジェクトに合わせて編集
-3. Claude Code で `/orchestrate {やりたいこと}` を実行
+2. `CLAUDE.md` の技術スタック・Commands を埋める
+3. `SPEC.md` にプロダクト概要と機能を記入
+4. `docs/steering/` の3ファイルを埋める
+5. Claude Code で `/orchestrate {やりたいこと}` を実行
+
+## ディレクトリ構成
+
+```
+CLAUDE.md           ← オーケストレーションルール（メイン）
+SPEC.md             ← プロダクト全体像（POが記入）
+specs/
+  requirements.md   ← 全機能の要件（育てるファイル）
+  design.md         ← 全機能の設計（育てるファイル）
+  tasks.md          ← 全タスク管理（Source of Truth）
+  _templates/       ← テンプレート（参照用）
+docs/steering/
+  product.md        ← プロダクトビジョン
+  tech.md           ← 技術スタック
+  structure.md      ← 構造・命名規則
+.claude/
+  agents/           ← エージェント定義
+  commands/         ← スラッシュコマンド
+```
+
+## v6からの主な変更
+
+- specs/{feature}/ フォルダ分割を廃止 → 単一ファイルに統合
+- security エージェント廃止 → reviewer に統合
+- documenter エージェント廃止 → orchestrator が直接実行
+- バグなし記録（no-bugs.md）廃止
+- review.md 廃止 → 仕様への書き戻しが成果物
+- 外部レビュー / エージェントメモリ / コンテキストリセット 廃止
+- テスト範囲を受入基準カバーのみに絞り込み
+- 承認レベルを4段階から2段階に簡略化
+- 規模分岐（単一モード / 分割モード）を追加
 
 ## ブログ
 
@@ -47,6 +58,7 @@
 - [③ テンプレv3、検証してみた](https://note.com/halfeng202602/n/na931d69cb82e)
 - [④ テンプレv4、シェフが同時に動き出した](https://note.com/halfeng202602/n/nc35e1335e4cd)
 - [⑤ 自作AI開発テンプレv5、地味だけど大事なアップデート](https://note.com/halfeng202602/n/ndee99bde4abb)
+
 ## 注意
 
 これは個人の実験プロジェクトです。AIが生成したコードの品質は人間が確認してください。

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDD v7 設計書</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 32px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 24px; margin-bottom: 4px; color: #fff; }
+  h2 { font-size: 18px; margin-bottom: 12px; color: #fff; }
+  .subtitle { color: #888; margin-bottom: 32px; font-size: 14px; }
+  .section { background: #1a1a1a; border-radius: 12px; padding: 24px; border: 1px solid #333; margin-bottom: 24px; }
+  .section.highlight { border-color: #226644; }
+  .section.danger { border-color: #662222; }
+  .callout { border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
+  .callout.green { background: #1e2a1e; color: #7dba7d; border-left: 3px solid #51cf66; }
+  .callout.amber { background: #2a2a1e; color: #baba7d; border-left: 3px solid #cfcf51; }
+  .callout.red { background: #2a1e1e; color: #ba7d7d; border-left: 3px solid #cf5151; }
+
+  /* Flow */
+  .flow { display: flex; flex-direction: column; gap: 2px; }
+  .flow-row { display: flex; align-items: stretch; gap: 12px; }
+  .flow-phase { flex: 1; background: #222; border-radius: 8px; padding: 12px; font-size: 13px; }
+  .flow-phase .label { font-weight: 700; color: #fff; margin-bottom: 4px; font-size: 14px; }
+  .flow-phase .detail { color: #aaa; font-size: 12px; line-height: 1.6; }
+  .flow-phase .file { color: #51cf66; font-family: monospace; font-size: 11px; }
+  .flow-arrow { text-align: center; color: #555; font-size: 18px; padding: 4px 0; }
+  .flow-divider { text-align: center; color: #888; font-size: 12px; padding: 8px 0; border-top: 2px dashed #333; border-bottom: 2px dashed #333; margin: 8px 0; }
+  .tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; }
+  .tag.agent { background: #333; color: #aaa; }
+  .tag.scope { background: #1e2a1e; color: #7dba7d; }
+  .tag.scope-all { background: #2a1e1e; color: #ba7d7d; }
+
+  /* Scale branching */
+  .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .branch-card { background: #222; border-radius: 8px; padding: 16px; }
+  .branch-card h3 { font-size: 14px; margin-bottom: 8px; }
+  .branch-card pre { font-family: monospace; font-size: 12px; color: #aaa; line-height: 1.8; margin: 0; }
+  .branch-card.small { border: 1px solid #226644; }
+  .branch-card.small h3 { color: #51cf66; }
+  .branch-card.large { border: 1px solid #2266aa; }
+  .branch-card.large h3 { color: #51a0cf; }
+
+  /* Kill list */
+  .kill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kill-item { background: #1c1c1c; border-radius: 8px; padding: 12px; border: 1px solid #2a2a2a; }
+  .kill-item .name { font-weight: 600; color: #ff6b6b; font-size: 13px; margin-bottom: 4px; }
+  .kill-item .reason { font-size: 12px; color: #888; line-height: 1.5; }
+  .kill-item .verdict { font-size: 11px; margin-top: 6px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .kill-item .verdict.remove { background: #3a1e1e; color: #ff6b6b; }
+  .kill-item .verdict.simplify { background: #3a3a1e; color: #cfcf51; }
+
+  /* Rule changes */
+  .rule-table { width: 100%; border-collapse: collapse; }
+  .rule-table td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #222; vertical-align: top; }
+  .rule-table td:first-child { color: #888; font-size: 12px; width: 120px; }
+  .rule-table .before { color: #ff6b6b; }
+  .rule-table .arrow { color: #555; text-align: center; width: 30px; }
+  .rule-table .after { color: #51cf66; }
+
+  /* Mermaid */
+  pre.mermaid { background: #111; padding: 16px; border-radius: 8px; font-size: 12px; overflow-x: auto; color: #aaa; line-height: 1.6; }
+
+  @media (max-width: 800px) {
+    .branch, .kill-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>SDD v7 設計書</h1>
+<p class="subtitle">「最小限のファイルを育てる。非エンジニアが使えるシンプルさ。」</p>
+
+<!-- ===== 1. Core Concept ===== -->
+<div class="section highlight">
+  <h2>コア思想</h2>
+  <div class="callout green">
+    <strong>原則:</strong> ファイルは最小限。新しく作るのではなく、既存ファイルにセクションを追記して育てる。<br/>
+    <strong>分割単位:</strong> ユースケース（UC）ではなく、<strong>機能</strong>単位。1機能に複数UCがぶら下がる。
+  </div>
+</div>
+
+<!-- ===== 2. Scale Branching ===== -->
+<div class="section">
+  <h2>規模による構成分岐</h2>
+  <div class="callout amber">
+    デフォルトは単一モード。ファイルが大きくなったら（目安: 300行超 or 5機能超）オーケストレーターがPOに分割を提案する。
+  </div>
+  <div class="branch">
+    <div class="branch-card small">
+      <h3>単一モード（デフォルト）</h3>
+      <pre>specs/
+  requirements.md   ← 全機能の要件
+  design.md         ← 全機能の設計
+  tasks.md          ← 全タスク（SoT）</pre>
+      <div style="margin-top:8px; font-size:12px; color:#7dba7d;">
+        機能が増えたら ## セクションを追記して育てる
+      </div>
+    </div>
+    <div class="branch-card large">
+      <h3>分割モード（大規模時）</h3>
+      <pre>specs/
+  overview.md       ← 全体像・機能間の関係
+  {機能名}/
+    requirements.md
+    design.md
+    tasks.md</pre>
+      <div style="margin-top:8px; font-size:12px; color:#7db5ba;">
+        overview.md で全体を俯瞰。機能フォルダは機能単位（UC単位ではない）
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3. Phase Flow ===== -->
+<div class="section">
+  <h2>フェーズフロー</h2>
+
+  <div class="flow">
+    <div class="flow-row">
+      <div class="flow-phase">
+        <div class="label">P1: 要件定義 <span class="tag agent">pm</span> <span class="tag scope">機能単位</span></div>
+        <div class="detail">specs/requirements.md に <code>## {機能名}</code> セクションを追記<br/>
+        <span class="file">Mermaidユーザーフロー図を含む</span></div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓ PO承認</div>
+    <div class="flow-row">
+      <div class="flow-phase">
+        <div class="label">P2: 設計 <span class="tag agent">architect</span> <span class="tag scope">機能単位</span></div>
+        <div class="detail">specs/design.md に <code>## {機能名}</code> セクションを追記<br/>
+        specs/tasks.md にタスク行を追記<br/>
+        <span class="file">Mermaidアーキテクチャ図・シーケンス図を含む</span></div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓ PO承認</div>
+    <div class="flow-row">
+      <div class="flow-phase">
+        <div class="label">P3: 実装 <span class="tag agent">implementer</span> <span class="tag scope">機能単位</span></div>
+        <div class="detail">src/ に実装、tests/ に受入基準のテスト（TDD）<br/>
+        バグがあった時だけ bugs/ に記録</div>
+      </div>
+    </div>
+
+    <div class="flow-divider">▼ ここからプロジェクト全体 ▼</div>
+
+    <div class="flow-row">
+      <div class="flow-phase">
+        <div class="label">P4: レビュー + 仕様書き戻し <span class="tag agent">reviewer</span> <span class="tag scope-all">全体</span></div>
+        <div class="detail">
+          プロジェクト全体を横断レビュー（セキュリティ含む）<br/>
+          実装で判明した事実を requirements.md / design.md に書き戻す<br/>
+          <span style="color:#ff6b6b; font-size:11px;">※ review.md は作らない。書き戻しが成果物。</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓ PO承認</div>
+    <div class="flow-row">
+      <div class="flow-phase">
+        <div class="label">P5: ドキュメント + コミット <span class="tag agent">orchestrator</span> <span class="tag scope-all">全体</span></div>
+        <div class="detail">CHANGELOG.md と README.md を更新<br/>
+        <span style="color:#ff6b6b; font-size:11px;">※ ADR・ガイド等は作らない。必要になったら作る。</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4. Mermaid ===== -->
+<div class="section">
+  <h2>フロー図（Mermaid）</h2>
+  <pre class="mermaid">flowchart TD
+    PO[PO指示] --> P1
+
+    subgraph feature["機能単位"]
+        P1["P1: 要件定義\nrequirements.md に追記"]
+        P2["P2: 設計\ndesign.md + tasks.md に追記"]
+        P3["P3: 実装+テスト\nsrc/ + tests/"]
+    end
+
+    subgraph whole["プロジェクト全体"]
+        P4["P4: レビュー + 仕様書き戻し\nrequirements.md / design.md 更新"]
+        P5["P5: ドキュメント + コミット\nCHANGELOG / README 更新"]
+    end
+
+    P1 -->|PO承認| P2
+    P2 -->|PO承認| P3
+    P3 -->|全タスクDONE| P4
+    P4 -->|PO承認| P5
+
+    SCALE{ファイル300行超?\n5機能超?}
+    SCALE -->|No| SINGLE[単一モード維持]
+    SCALE -->|Yes| SPLIT["分割モードへ\noverview.md + 機能フォルダ"]</pre>
+</div>
+
+<!-- ===== 5. Non-engineer kill list ===== -->
+<div class="section danger">
+  <h2>非エンジニア向け: 削除・簡略化リスト</h2>
+  <div class="callout red">
+    「エンジニアのエンジニアによるエンジニアのための機能」を洗い出し。個人の非エンジニア開発では不要。
+  </div>
+
+  <div class="kill-grid">
+    <div class="kill-item">
+      <div class="name">security エージェント</div>
+      <div class="reason">OWASP Top 10チェック専用エージェント。reviewer が最低限見れば十分。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">/log-review コマンド</div>
+      <div class="reason">外部AIに実行ログをレビューさせる。個人開発には不要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">コンテキストリセット（P2→P3）</div>
+      <div class="reason">implementer に渡す情報を制限する仕組み。Claude Code の compaction に任せればよい。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">エージェントメモリ（.claude/memory/）</div>
+      <div class="reason">判断履歴の永続化。CLAUDE.md のメモ + specs ファイルで十分。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">Sub-agent制限表</div>
+      <div class="reason">誰が誰を呼べるかの制御表。個人開発ではオーケストレーター1人で十分。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">Hooks設定（settings.json）</div>
+      <div class="reason">PreToolUse / PostToolUse の自動チェック設定。エンジニアの設定作業が必要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">/loop コマンド</div>
+      <div class="reason">定期実行。CI/CD的な使い方で個人開発には不要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">Compaction管理ルール</div>
+      <div class="reason">コンテキスト70%超で提案。Claude Code が自動でやるので明示不要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">パーミッション戦略（settings.json）</div>
+      <div class="reason">allow/deny リスト。エンジニアの設定作業が必要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">コミットメッセージ形式</div>
+      <div class="reason">feat(Task-{N}): [要約] の強制。個人開発なら自由でよい。</div>
+      <div class="verdict simplify">簡略化</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">SPEC_GAP / SPEC_WRONG / SPEC_AMBIGUOUS</div>
+      <div class="reason">仕様ズレの報告マーカー3種。「仕様と違ったら書き戻す」のシンプルルールで十分。</div>
+      <div class="verdict simplify">簡略化</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">docs/adr/ （Architecture Decision Records）</div>
+      <div class="reason">設計判断の記録。design.md 内で「なぜこの設計か」を書けば十分。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">documenter エージェント</div>
+      <div class="reason">CHANGELOG/README更新だけならオーケストレーターが直接やれる。専用エージェント不要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+    <div class="kill-item">
+      <div class="name">バグなし記録（no-bugs.md）</div>
+      <div class="reason">バグがなくても空ファイルを作る。完全に不要。</div>
+      <div class="verdict remove">削除</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 6. Summary of all changes ===== -->
+<div class="section">
+  <h2>変更一覧</h2>
+  <table class="rule-table">
+    <tr>
+      <td>specs構成</td>
+      <td class="before">specs/{feature}/ フォルダ × 機能数</td>
+      <td class="arrow">→</td>
+      <td class="after">specs/ に3ファイル。大規模時のみ機能フォルダ分割</td>
+    </tr>
+    <tr>
+      <td>分割単位</td>
+      <td class="before">UC（ユースケース）単位</td>
+      <td class="arrow">→</td>
+      <td class="after">機能単位（1機能に複数UCがぶら下がる）</td>
+    </tr>
+    <tr>
+      <td>レビュー</td>
+      <td class="before">review.md + security-review.md 新規作成</td>
+      <td class="arrow">→</td>
+      <td class="after">仕様に書き戻すだけ。専用ファイル廃止</td>
+    </tr>
+    <tr>
+      <td>承認フロー</td>
+      <td class="before">4段階 (Large/Medium/Small/Trivial)</td>
+      <td class="arrow">→</td>
+      <td class="after">2段階（要承認 / 自動進行）</td>
+    </tr>
+    <tr>
+      <td>テスト</td>
+      <td class="before">TDD + 単体・結合・受入テスト全部</td>
+      <td class="arrow">→</td>
+      <td class="after">TDD維持。受入基準のテストのみ必須</td>
+    </tr>
+    <tr>
+      <td>バグ記録</td>
+      <td class="before">バグなしでも no-bugs.md 必須</td>
+      <td class="arrow">→</td>
+      <td class="after">バグがあった時だけ記録</td>
+    </tr>
+    <tr>
+      <td>セキュリティ</td>
+      <td class="before">専用エージェント + 専用ファイル</td>
+      <td class="arrow">→</td>
+      <td class="after">reviewer が軽くチェック</td>
+    </tr>
+    <tr>
+      <td>受入基準</td>
+      <td class="before">EARS記法5パターン</td>
+      <td class="arrow">→</td>
+      <td class="after">EARS記法を維持</td>
+    </tr>
+    <tr>
+      <td>仕様書き戻し</td>
+      <td class="before">SPEC_GAP/WRONG/AMBIGUOUS マーカー</td>
+      <td class="arrow">→</td>
+      <td class="after">P4で直接書き戻す。マーカー不要</td>
+    </tr>
+    <tr>
+      <td>steering docs</td>
+      <td class="before">product.md / tech.md / structure.md 3分割</td>
+      <td class="arrow">→</td>
+      <td class="after">3ファイル維持</td>
+    </tr>
+    <tr>
+      <td>エージェント数</td>
+      <td class="before">7体 + orchestrator</td>
+      <td class="arrow">→</td>
+      <td class="after">4体 + orchestrator（security→reviewer統合、documenter→orchestrator直接）</td>
+    </tr>
+    <tr>
+      <td>CLAUDE.md</td>
+      <td class="before">279行（v6機能全部入り）</td>
+      <td class="arrow">→</td>
+      <td class="after">大幅スリム化（不要ルール・設定・制限表を削除）</td>
+    </tr>
+  </table>
+</div>
+
+</body>
+</html>

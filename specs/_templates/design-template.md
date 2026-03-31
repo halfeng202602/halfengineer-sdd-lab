@@ -1,133 +1,94 @@
-# Design: {feature-name}
+# 設計テンプレート
 
-> このファイルは architect エージェントが作成する。
-> requirements.md（承認済み）を元に技術設計を行う。
-
-## 概要
-
-### 設計ゴール
-{この設計が達成すること}
-
-### 前提・制約
-- {例: 既存の認証基盤は使わず新規構築}
-- {例: Supabase Auth は使用しない方針}
+> Architect が specs/design.md にセクション追記する際のテンプレート。
+> `## {機能名}` 見出しで追記する。
 
 ---
 
-## アーキテクチャ
+## {機能名}
+
+### 設計ゴール
+- {この設計で達成したいこと}
+
+### 前提・制約
+- {技術的な前提条件}
+
+### アーキテクチャ
 
 ```mermaid
 graph TD
-    A[Client] --> B[API Gateway]
-    B --> C[Auth Service]
-    C --> D[Database]
+    Client[ブラウザ] --> API[API Server]
+    API --> DB[(PostgreSQL)]
+    API --> Cache[(Redis)]
+    API --> External[外部サービス]
 ```
 
-{Mermaid図 + 必要な補足説明}
+### API設計
 
----
+| Method | Path | 説明 |
+|---|---|---|
+| POST | /api/{resource} | {リソース作成} |
+| GET | /api/{resource}/:id | {リソース取得} |
 
-## API設計
-
-### {エンドポイント名}
-
-```
-{METHOD} {path}
-```
-
-Request:
+**リクエスト例:**
 ```json
-{リクエストボディの例}
+{
+  "field": "value"
+}
 ```
 
-Response（成功）:
+**レスポンス例:**
 ```json
-{レスポンスボディの例}
+{
+  "id": "xxx",
+  "field": "value",
+  "createdAt": "2025-01-01T00:00:00Z"
+}
 ```
 
-Response（エラー）:
-```json
-{エラーレスポンスの例}
-```
-
-（エンドポイントごとに繰り返す）
-
----
-
-## データモデル
-
-### {テーブル名}
+### データモデル
 
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
-| id | UUID | PK | |
-| {name} | {type} | {constraints} | {description} |
+| id | UUID | PK | 一意識別子 |
+| {field} | {type} | {constraint} | {description} |
 
-### リレーション
-
+**リレーション図:**
 ```mermaid
 erDiagram
-    USERS ||--o{ SESSIONS : has
+    User ||--o{ Post : creates
+    Post ||--o{ Comment : has
+    User ||--o{ Comment : writes
 ```
 
----
-
-## シーケンス図
-
-### {主要フロー名}
+### シーケンス図
 
 ```mermaid
 sequenceDiagram
     actor User
-    User->>+API: POST /auth/login
-    API->>+DB: SELECT user
-    DB-->>-API: user record
-    API-->>-User: JWT token
+    User->>+API: リクエスト
+    API->>+DB: クエリ
+    DB-->>-API: 結果
+    API-->>-User: レスポンス
 ```
 
----
+### トレードオフと代替案
 
-## トレードオフと代替案
+| 観点 | 採用案 | 却下案 | 理由 |
+|---|---|---|---|
+| {観点} | {選んだ方} | {選ばなかった方} | {なぜ} |
 
-| 判断 | 選択肢A | 選択肢B | 決定 | 理由 |
-|---|---|---|---|---|
-| {例: トークン方式} | JWT | Session | JWT | {理由} |
+### セキュリティ考慮
+- {入力バリデーション}
+- {認証・認可}
+- {データ保護}
 
----
+### 影響範囲
+- {既存コードへの影響}
 
-## セキュリティ考慮事項
+### 変更履歴
 
-- {例: パスワードは bcrypt（cost=12）でハッシュ化}
-- {例: JWT の有効期限は15分、リフレッシュトークンは7日}
-- {例: ログイン試行は5回/分にレート制限}
-
----
-
-## 既存コードへの影響範囲
-
-| ファイル/モジュール | 変更内容 | リスク |
+| 日付 | 変更内容 | 理由 |
 |---|---|---|
-| {パス} | {何を変えるか} | {Low/Medium/High} |
-
----
-
-## 実装時補記
-
-> このセクションは実装フェーズ以降に追記される。Architectが最初に書く必要はない。
-> 実装中に判明した技術的知見・仕様との乖離・設計判断の補足を記録する。
-
-| 日付 | 種別 | 内容 | 対応タスク |
-|---|---|---|---|
-| | SPEC_GAP / SPEC_WRONG / SPEC_AMBIGUOUS / SPEC_UPDATE_NEEDED | | Task-N |
-
----
-
-## 変更履歴
-
-| 日付 | 変更内容 | 影響度 | 対応 |
-|---|---|---|---|
-| | | | |
-
----
 
 status: DRAFT
